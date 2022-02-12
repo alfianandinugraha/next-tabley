@@ -1,7 +1,8 @@
 import { Button } from "@chakra-ui/button";
 import { Input } from "@chakra-ui/input";
-import { Box, Heading, HStack, Text } from "@chakra-ui/layout";
+import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
 import { Container } from "@chakra-ui/layout";
+import { Select } from "@chakra-ui/select";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
 import users from "@data/users";
 import TextField from "components/text-field";
@@ -14,6 +15,7 @@ import {
   Column,
   useSortBy,
   useFilters,
+  usePagination,
 } from "react-table";
 import { User } from "types/model";
 
@@ -42,13 +44,18 @@ const columns: ReadonlyArray<Column<User>> = [
 
 const Home: NextPage = () => {
   const {
-    rows,
+    page,
     prepareRow,
     getTableBodyProps,
     headerGroups,
     getTableProps,
     setGlobalFilter,
     setFilter,
+    canPreviousPage,
+    canNextPage,
+    nextPage,
+    previousPage,
+    setPageSize,
   } = useTable(
     {
       data: users,
@@ -56,11 +63,12 @@ const Home: NextPage = () => {
     },
     useFilters,
     useGlobalFilter,
-    useSortBy
+    useSortBy,
+    usePagination
   );
 
   return (
-    <Container maxW="container.xl" mt="10">
+    <Container maxW="container.xl" my="10">
       <Head>
         <title>Next Tabley</title>
       </Head>
@@ -68,15 +76,33 @@ const Home: NextPage = () => {
         Tabley
       </Heading>
       <Box mt="6" display="flex" justifyContent="space-between">
-        <HStack spacing="3">
-          <Button>Prev</Button>
-          <Button>Next</Button>;
-        </HStack>
         <TextField
           placeholder="Search"
           maxW="400px"
           onChangeDebounce={setGlobalFilter}
         />
+        <Stack display="flex" spacing="4" direction="row">
+          <Select
+            w="40"
+            onChange={(e) => {
+              setPageSize(+e.target.value);
+            }}
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="75">75</option>
+            <option value="150">150</option>
+            <option value="200">200</option>
+          </Select>
+          <HStack spacing="3">
+            <Button disabled={!canPreviousPage} onClick={previousPage}>
+              Prev
+            </Button>
+            <Button disabled={!canNextPage} onClick={nextPage}>
+              Next
+            </Button>
+          </HStack>
+        </Stack>
       </Box>
       <Table {...getTableProps()} mt="4">
         <Thead>
@@ -114,7 +140,7 @@ const Home: NextPage = () => {
           })}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
+          {page.map((row) => {
             prepareRow(row);
             return (
               <Tr {...row.getRowProps()}>
