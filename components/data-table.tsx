@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 import { Box, Text } from "@chakra-ui/layout";
 import { Select, HStack, Button } from "@chakra-ui/react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
