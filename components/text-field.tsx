@@ -1,13 +1,13 @@
+import "regenerator-runtime/runtime";
 import { Input, InputProps } from "@chakra-ui/input";
-import { useEffect, useState } from "react";
-import { useDebounce, useDebouncedCallback } from "use-debounce";
+import { useAsyncDebounce } from "react-table";
 
 type TextFieldProps = InputProps & {
   onChangeDebounce?: (value: string) => void;
 };
 
 const TextField = (props: TextFieldProps) => {
-  const debounced = useDebouncedCallback<(value: string) => void>(
+  const debounced = useAsyncDebounce(
     (value) => props.onChangeDebounce && props.onChangeDebounce(value),
     500
   );

@@ -9,13 +9,10 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { HiArrowUp, HiArrowDown } from "react-icons/hi";
 import {
-  TableInstance,
   useTable,
-  UseGlobalFiltersInstanceProps,
   useGlobalFilter,
   Column,
   useSortBy,
-  UseSortByInstanceProps,
   useFilters,
 } from "react-table";
 import { User } from "types/model";
