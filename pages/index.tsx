@@ -1,14 +1,19 @@
 import { Button } from "@chakra-ui/button";
-import { Input } from "@chakra-ui/input";
 import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
 import { Container } from "@chakra-ui/layout";
 import { Select } from "@chakra-ui/select";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
 import users from "@data/users";
+import Pagination from "components/pagination";
 import TextField from "components/text-field";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { HiArrowUp, HiArrowDown } from "react-icons/hi";
+import {
+  HiArrowUp,
+  HiArrowDown,
+  HiChevronRight,
+  HiChevronLeft,
+} from "react-icons/hi";
 import {
   useTable,
   useGlobalFilter,
@@ -56,10 +61,16 @@ const Home: NextPage = () => {
     nextPage,
     previousPage,
     setPageSize,
+    pageOptions,
+    gotoPage,
+    state: { pageIndex },
   } = useTable(
     {
       data: users,
       columns,
+      initialState: {
+        pageSize: 5,
+      },
     },
     useFilters,
     useGlobalFilter,
@@ -76,33 +87,23 @@ const Home: NextPage = () => {
         Tabley
       </Heading>
       <Box mt="6" display="flex" justifyContent="space-between">
+        <Select
+          w="20"
+          onChange={(e) => {
+            setPageSize(+e.target.value);
+          }}
+        >
+          <option value="5">5</option>
+          <option value="25">25</option>
+          <option value="75">75</option>
+          <option value="150">150</option>
+          <option value="200">200</option>
+        </Select>
         <TextField
           placeholder="Search"
           maxW="400px"
           onChangeDebounce={setGlobalFilter}
         />
-        <Stack display="flex" spacing="4" direction="row">
-          <Select
-            w="40"
-            onChange={(e) => {
-              setPageSize(+e.target.value);
-            }}
-          >
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="75">75</option>
-            <option value="150">150</option>
-            <option value="200">200</option>
-          </Select>
-          <HStack spacing="3">
-            <Button disabled={!canPreviousPage} onClick={previousPage}>
-              Prev
-            </Button>
-            <Button disabled={!canNextPage} onClick={nextPage}>
-              Next
-            </Button>
-          </HStack>
-        </Stack>
       </Box>
       <Table {...getTableProps()} mt="4">
         <Thead>
@@ -156,6 +157,36 @@ const Home: NextPage = () => {
           })}
         </Tbody>
       </Table>
+      <Box mt="4" display="flex" justifyContent="space-between">
+        <Stack spacing="4" direction="row">
+          <TextField placeholder="Go to page..." />
+          <Button>Go</Button>
+        </Stack>
+        <HStack spacing="3">
+          <Pagination
+            currentPage={pageIndex}
+            totalPages={pageOptions.length}
+            data={pageOptions}
+            onClick={gotoPage}
+          />
+          <Button
+            disabled={!canPreviousPage}
+            onClick={previousPage}
+            colorScheme="blue"
+            leftIcon={<HiChevronLeft />}
+          >
+            Prev
+          </Button>
+          <Button
+            disabled={!canNextPage}
+            onClick={nextPage}
+            colorScheme="blue"
+            rightIcon={<HiChevronRight />}
+          >
+            Next
+          </Button>
+        </HStack>
+      </Box>
     </Container>
   );
 };
