@@ -4,6 +4,7 @@ import { Container } from "@chakra-ui/layout";
 import { Select } from "@chakra-ui/select";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
 import users from "@data/users";
+import GotoForm from "components/goto-form";
 import Pagination from "components/pagination";
 import TextField from "components/text-field";
 import type { NextPage } from "next";
@@ -158,10 +159,11 @@ const Home: NextPage = () => {
         </Tbody>
       </Table>
       <Box mt="4" display="flex" justifyContent="space-between">
-        <Stack spacing="4" direction="row">
-          <TextField placeholder="Go to page..." />
-          <Button>Go</Button>
-        </Stack>
+        <GotoForm
+          onSubmit={(page) => {
+            gotoPage(page - 1);
+          }}
+        />
         <HStack spacing="3">
           <Pagination
             currentPage={pageIndex}
