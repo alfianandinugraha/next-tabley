@@ -4,44 +4,56 @@ import { Box, Heading, HStack } from "@chakra-ui/layout";
 import { Container } from "@chakra-ui/layout";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
 import users from "@data/users";
+import TextField from "components/text-field";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { TableInstance, useTable } from "react-table";
+import {
+  TableInstance,
+  useTable,
+  UseGlobalFiltersInstanceProps,
+  useGlobalFilter,
+  Column,
+} from "react-table";
 import { User } from "types/model";
+
+const columns: ReadonlyArray<Column<User>> = [
+  {
+    Header: "User ID",
+    accessor: "id",
+  },
+  {
+    Header: "Email",
+    accessor: "email",
+  },
+  {
+    Header: "Fullname",
+    accessor: "fullName",
+  },
+  {
+    Header: "Gender",
+    accessor: "gender",
+  },
+  {
+    Header: "Country",
+    accessor: "country",
+  },
+];
 
 const Home: NextPage = () => {
   const {
-    getTableProps,
-    getTableBodyProps,
     rows,
     prepareRow,
+    getTableBodyProps,
     headerGroups,
-    getHooks,
-  }: TableInstance<User> = useTable({
-    data: users,
-    columns: [
-      {
-        Header: "User ID",
-        accessor: "id",
-      },
-      {
-        Header: "Email",
-        accessor: "email",
-      },
-      {
-        Header: "Fullname",
-        accessor: "fullName",
-      },
-      {
-        Header: "Gender",
-        accessor: "gender",
-      },
-      {
-        Header: "Country",
-        accessor: "country",
-      },
-    ],
-  });
+    getTableProps,
+    setGlobalFilter,
+  } = useTable(
+    {
+      data: users,
+      columns,
+    },
+    useGlobalFilter
+  ) as TableInstance<User> & UseGlobalFiltersInstanceProps<User>;
 
   return (
     <Container maxW="container.xl" mt="10">
@@ -54,9 +66,13 @@ const Home: NextPage = () => {
       <Box mt="6" display="flex" justifyContent="space-between">
         <HStack spacing="3">
           <Button>Prev</Button>
-          <Button>Next</Button>
+          <Button>Next</Button>;
         </HStack>
-        <Input placeholder="Search" maxW="400px" />
+        <TextField
+          placeholder="Search"
+          maxW="400px"
+          onChangeDebounce={setGlobalFilter}
+        />
       </Box>
       <Table {...getTableProps()} mt="4">
         <Thead>
