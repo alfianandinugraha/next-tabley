@@ -16,6 +16,7 @@ import {
   Column,
   useSortBy,
   UseSortByInstanceProps,
+  useFilters,
 } from "react-table";
 import { User } from "types/model";
 
@@ -50,11 +51,13 @@ const Home: NextPage = () => {
     headerGroups,
     getTableProps,
     setGlobalFilter,
+    setFilter,
   } = useTable(
     {
       data: users,
       columns,
     },
+    useFilters,
     useGlobalFilter,
     useSortBy
   );
@@ -85,21 +88,27 @@ const Home: NextPage = () => {
               <Tr {...headerGroups.getHeaderGroupProps()}>
                 {headerGroups.headers.map((column) => {
                   return (
-                    <Th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                    >
-                      <HStack display="flex" alignItems="center" spacing="2">
-                        <Text>{column.render("Header")}</Text>
-                        {column.isSorted ? (
-                          <>
-                            {column.isSortedDesc ? (
-                              <HiArrowDown />
-                            ) : (
-                              <HiArrowUp />
-                            )}
-                          </>
-                        ) : null}
-                      </HStack>
+                    <Th {...column.getHeaderProps()}>
+                      <Box mb="2" {...column.getSortByToggleProps()}>
+                        <HStack display="flex" alignItems="center" spacing="2">
+                          <Text>{column.render("Header")}</Text>
+                          {column.isSorted ? (
+                            <>
+                              {column.isSortedDesc ? (
+                                <HiArrowDown />
+                              ) : (
+                                <HiArrowUp />
+                              )}
+                            </>
+                          ) : null}
+                        </HStack>
+                      </Box>
+                      <TextField
+                        onChangeDebounce={(value) =>
+                          setFilter(column.id, value)
+                        }
+                        placeholder={`Search ${column.id.toLocaleLowerCase()}`}
+                      />
                     </Th>
                   );
                 })}
