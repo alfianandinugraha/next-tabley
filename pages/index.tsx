@@ -1,18 +1,21 @@
 import { Button } from "@chakra-ui/button";
 import { Input } from "@chakra-ui/input";
-import { Box, Heading, HStack } from "@chakra-ui/layout";
+import { Box, Heading, HStack, Text } from "@chakra-ui/layout";
 import { Container } from "@chakra-ui/layout";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
 import users from "@data/users";
 import TextField from "components/text-field";
 import type { NextPage } from "next";
 import Head from "next/head";
+import { HiArrowUp, HiArrowDown } from "react-icons/hi";
 import {
   TableInstance,
   useTable,
   UseGlobalFiltersInstanceProps,
   useGlobalFilter,
   Column,
+  useSortBy,
+  UseSortByInstanceProps,
 } from "react-table";
 import { User } from "types/model";
 
@@ -52,8 +55,9 @@ const Home: NextPage = () => {
       data: users,
       columns,
     },
-    useGlobalFilter
-  ) as TableInstance<User> & UseGlobalFiltersInstanceProps<User>;
+    useGlobalFilter,
+    useSortBy
+  );
 
   return (
     <Container maxW="container.xl" mt="10">
@@ -81,8 +85,21 @@ const Home: NextPage = () => {
               <Tr {...headerGroups.getHeaderGroupProps()}>
                 {headerGroups.headers.map((column) => {
                   return (
-                    <Th {...column.getHeaderProps()}>
-                      {column.render("Header")}
+                    <Th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                    >
+                      <HStack display="flex" alignItems="center" spacing="2">
+                        <Text>{column.render("Header")}</Text>
+                        {column.isSorted ? (
+                          <>
+                            {column.isSortedDesc ? (
+                              <HiArrowDown />
+                            ) : (
+                              <HiArrowUp />
+                            )}
+                          </>
+                        ) : null}
+                      </HStack>
                     </Th>
                   );
                 })}
@@ -96,7 +113,11 @@ const Home: NextPage = () => {
             return (
               <Tr {...row.getRowProps()}>
                 {row.cells.map((cell) => {
-                  return <Td {...cell.getCellProps()}>{cell.value}</Td>;
+                  return (
+                    <Td {...cell.getCellProps()} minW="160px">
+                      {cell.value}
+                    </Td>
+                  );
                 })}
               </Tr>
             );
