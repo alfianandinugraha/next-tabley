@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-key */
-import { Box, Text } from "@chakra-ui/layout";
-import { Select, HStack, Button } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/layout";
+import { Select, HStack, Button, Checkbox } from "@chakra-ui/react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/table";
 import React from "react";
 import {
@@ -14,6 +14,7 @@ import {
   useFilters,
   useGlobalFilter,
   usePagination,
+  useRowSelect,
   useSortBy,
   useTable,
 } from "react-table";
@@ -54,7 +55,33 @@ function DataTable<T extends object>(props: DataTableProps<T>) {
     useFilters,
     useGlobalFilter,
     useSortBy,
-    usePagination
+    usePagination,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          Header: ({ getToggleAllPageRowsSelectedProps }) => {
+            const { checked, ...props } = getToggleAllPageRowsSelectedProps();
+            return (
+              <Box>
+                <Checkbox {...props} isChecked={checked} />
+              </Box>
+            );
+          },
+          Cell: ({ row }: any) => {
+            const { checked, ...props } = row.getToggleRowSelectedProps();
+            return (
+              <Box>
+                <Checkbox {...props} isChecked={checked} />
+              </Box>
+            );
+          },
+          disableFilters: true,
+        },
+        ...columns,
+      ]);
+    }
   );
 
   return (
@@ -88,7 +115,7 @@ function DataTable<T extends object>(props: DataTableProps<T>) {
                     <Th {...column.getHeaderProps()}>
                       <Box mb="2" {...column.getSortByToggleProps()}>
                         <HStack display="flex" alignItems="center" spacing="2">
-                          <Text>{column.render("Header")}</Text>
+                          <Box>{column.render("Header")}</Box>
                           {column.isSorted ? (
                             <>
                               {column.isSortedDesc ? (
@@ -100,12 +127,14 @@ function DataTable<T extends object>(props: DataTableProps<T>) {
                           ) : null}
                         </HStack>
                       </Box>
-                      <TextField
-                        onChangeDebounce={(value) =>
-                          setFilter(column.id, value)
-                        }
-                        placeholder={`Search ${column.id.toLocaleLowerCase()}`}
-                      />
+                      {column.canFilter ? (
+                        <TextField
+                          onChangeDebounce={(value) =>
+                            setFilter(column.id, value)
+                          }
+                          placeholder={`Search ${column.id.toLocaleLowerCase()}`}
+                        />
+                      ) : null}
                     </Th>
                   );
                 })}
@@ -120,8 +149,12 @@ function DataTable<T extends object>(props: DataTableProps<T>) {
               <Tr {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
-                    <Td {...cell.getCellProps()} minW="160px">
-                      {cell.value}
+                    <Td
+                      {...cell.getCellProps()}
+                      minW={cell.column.id === "selection" ? "0" : "160px"}
+                      className={cell.column.id}
+                    >
+                      {cell.render("Cell")}
                     </Td>
                   );
                 })}
